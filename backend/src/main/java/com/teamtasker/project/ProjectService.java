@@ -5,11 +5,11 @@ import com.teamtasker.user.Role;
 import com.teamtasker.user.User;
 import com.teamtasker.user.UserDtos;
 import com.teamtasker.user.UserRepository;
-import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProjectService {
@@ -23,6 +23,7 @@ public class ProjectService {
     this.authFacade = authFacade;
   }
 
+  @Transactional(readOnly = true)
   public List<ProjectDtos.ProjectResponse> listProjects() {
     User currentUser = authFacade.currentUser();
     List<Project> projects = currentUser.getRole() == Role.ADMIN
@@ -62,6 +63,7 @@ public class ProjectService {
     return toResponse(projectRepository.save(project));
   }
 
+  @Transactional(readOnly = true)
   public Project findAccessibleProject(Long id) {
     Project project = findProject(id);
     User currentUser = authFacade.currentUser();

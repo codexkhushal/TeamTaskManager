@@ -7,9 +7,9 @@ import com.teamtasker.user.Role;
 import com.teamtasker.user.User;
 import com.teamtasker.user.UserDtos;
 import com.teamtasker.user.UserRepository;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TaskService {
@@ -26,6 +26,7 @@ public class TaskService {
     this.authFacade = authFacade;
   }
 
+  @Transactional(readOnly = true)
   public List<TaskDtos.TaskResponse> listTasks() {
     User currentUser = authFacade.currentUser();
     List<Task> tasks = currentUser.getRole() == Role.ADMIN
