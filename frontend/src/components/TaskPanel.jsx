@@ -11,8 +11,12 @@ const initialTask = {
 
 const statuses = ["TODO", "IN_PROGRESS", "DONE"];
 
-export default function TaskPanel({ tasks, projects, users, isAdmin, onCreateTask, onUpdateTaskStatus }) {
+export default function TaskPanel({ tasks, projects, users, isAdmin, onCreateTask, onUpdateTaskStatus, onDeleteTask }) {
   const [form, setForm] = useState(initialTask);
+  const selectedProject = projects.find((project) => String(project.id) === String(form.projectId));
+  const assignableUsers = selectedProject
+    ? users.filter((user) => selectedProject.members.some((member) => member.id === user.id))
+    : users;
 
   async function submit(event) {
     event.preventDefault();
@@ -23,6 +27,14 @@ export default function TaskPanel({ tasks, projects, users, isAdmin, onCreateTas
       deadline: form.deadline || null
     });
     setForm(initialTask);
+  }
+
+  function handleProjectChange(projectId) {
+    setForm((current) => ({
+      ...current,
+      projectId,
+      assigneeId: ""
+    }));
   }
 
   return (
@@ -40,14 +52,21 @@ export default function TaskPanel({ tasks, projects, users, isAdmin, onCreateTas
                   <h3>{task.title}</h3>
                   <p>{task.description || "No task notes."}</p>
                 </div>
-                <select
-                  value={task.status}
-                  onChange={(event) => onUpdateTaskStatus(task.id, event.target.value)}
-                >
-                  {statuses.map((status) => (
-                    <option key={status} value={status}>{status.replace("_", " ")}</option>
-                  ))}
-                </select>
+                <div className="task-actions">
+                  <select
+                    value={task.status}
+                    onChange={(event) => onUpdateTaskStatus(task.id, event.target.value)}
+                  >
+                    {statuses.map((status) => (
+                      <option key={status} value={status}>{status.replace("_", " ")}</option>
+                    ))}
+                  </select>
+                  {isAdmin ? (
+                    <button className="inline-action" onClick={() => onDeleteTask(task.id)} type="button">
+                      Delete
+                    </button>
+                  ) : null}
+                </div>
               </div>
               <div className="task-meta">
                 <span>{task.projectName}</span>
@@ -75,7 +94,7 @@ export default function TaskPanel({ tasks, projects, users, isAdmin, onCreateTas
           </label>
           <label>
             Project
-            <select value={form.projectId} onChange={(e) => setForm({ ...form, projectId: e.target.value })} required>
+            <select value={form.projectId} onChange={(e) => handleProjectChange(e.target.value)} required>
               <option value="">Select project</option>
               {projects.map((project) => (
                 <option key={project.id} value={project.id}>{project.name}</option>
@@ -85,12 +104,17 @@ export default function TaskPanel({ tasks, projects, users, isAdmin, onCreateTas
           <label>
             Assignee
             <select value={form.assigneeId} onChange={(e) => setForm({ ...form, assigneeId: e.target.value })} required>
-              <option value="">Select teammate</option>
-              {users.map((user) => (
+              <option value="">{selectedProject ? "Select project member" : "Select teammate"}</option>
+              {assignableUsers.map((user) => (
                 <option key={user.id} value={user.id}>{user.name}</option>
               ))}
             </select>
           </label>
+          {selectedProject ? (
+            <p className="helper-text">
+              Only members of {selectedProject.name} can be assigned tasks.
+            </p>
+          ) : null}
           <label>
             Deadline
             <input type="date" value={form.deadline} onChange={(e) => setForm({ ...form, deadline: e.target.value })} />

@@ -63,6 +63,13 @@ public class ProjectService {
     return toResponse(projectRepository.save(project));
   }
 
+  @Transactional
+  public void delete(Long projectId) {
+    requireAdmin();
+    Project project = findProject(projectId);
+    projectRepository.delete(project);
+  }
+
   @Transactional(readOnly = true)
   public Project findAccessibleProject(Long id) {
     Project project = findProject(id);

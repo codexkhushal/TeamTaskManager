@@ -64,6 +64,17 @@ public class TaskService {
     return toResponse(taskRepository.save(task));
   }
 
+  @Transactional
+  public void delete(Long taskId) {
+    Task task = findTask(taskId);
+    User currentUser = authFacade.currentUser();
+    boolean allowed = currentUser.getRole() == Role.ADMIN || task.getAssignee().getId().equals(currentUser.getId());
+    if (!allowed) {
+      throw new IllegalArgumentException("You cannot delete this task");
+    }
+    taskRepository.delete(task);
+  }
+
   private Task findTask(Long id) {
     return taskRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("Task not found"));

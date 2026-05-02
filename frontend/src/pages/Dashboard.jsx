@@ -42,6 +42,11 @@ export default function Dashboard() {
     await loadData();
   }
 
+  async function handleDeleteProject(projectId) {
+    await apiRequest(`/projects/${projectId}`, { method: "DELETE" });
+    await loadData();
+  }
+
   async function handleCreateTask(payload) {
     await apiRequest("/tasks", { method: "POST", body: JSON.stringify(payload) });
     await loadData();
@@ -52,6 +57,11 @@ export default function Dashboard() {
       method: "PATCH",
       body: JSON.stringify({ status })
     });
+    await loadData();
+  }
+
+  async function handleDeleteTask(taskId) {
+    await apiRequest(`/tasks/${taskId}`, { method: "DELETE" });
     await loadData();
   }
 
@@ -74,7 +84,13 @@ export default function Dashboard() {
       {error ? <p className="error-banner">{error}</p> : null}
 
       <SummaryCards summary={summary} />
-      <ProjectPanel projects={projects} users={users} isAdmin={isAdmin} onCreateProject={handleCreateProject} />
+      <ProjectPanel
+        projects={projects}
+        users={users}
+        isAdmin={isAdmin}
+        onCreateProject={handleCreateProject}
+        onDeleteProject={handleDeleteProject}
+      />
       <TaskPanel
         tasks={tasks}
         projects={projects}
@@ -82,6 +98,7 @@ export default function Dashboard() {
         isAdmin={isAdmin}
         onCreateTask={handleCreateTask}
         onUpdateTaskStatus={handleUpdateTaskStatus}
+        onDeleteTask={handleDeleteTask}
       />
     </div>
   );

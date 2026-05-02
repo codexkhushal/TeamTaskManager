@@ -2,7 +2,7 @@ import { useState } from "react";
 
 const initialForm = { name: "", description: "", deadline: "", memberIds: [] };
 
-export default function ProjectPanel({ projects, users, isAdmin, onCreateProject }) {
+export default function ProjectPanel({ projects, users, isAdmin, onCreateProject, onDeleteProject }) {
   const [form, setForm] = useState(initialForm);
 
   function toggleMember(memberId) {
@@ -33,8 +33,15 @@ export default function ProjectPanel({ projects, users, isAdmin, onCreateProject
         <div className="project-list">
           {projects.map((project) => (
             <article className="project-card" key={project.id}>
-              <div>
+              <div className="project-card-header">
                 <h3>{project.name}</h3>
+                {isAdmin ? (
+                  <button className="inline-action" onClick={() => onDeleteProject(project.id)} type="button">
+                    Delete
+                  </button>
+                ) : null}
+              </div>
+              <div>
                 <p>{project.description || "No description yet."}</p>
               </div>
               <div className="project-meta">
@@ -79,6 +86,7 @@ export default function ProjectPanel({ projects, users, isAdmin, onCreateProject
                 </label>
               ))}
             </div>
+            <p className="helper-text">Select every teammate who should be eligible for tasks in this project.</p>
           </div>
           <button className="primary-button" type="submit">Create project</button>
         </form>
