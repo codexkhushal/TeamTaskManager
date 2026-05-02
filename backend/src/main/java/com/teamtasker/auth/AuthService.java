@@ -26,13 +26,14 @@ public class AuthService {
 
   @Transactional
   public AuthDtos.AuthResponse signup(AuthDtos.SignupRequest request) {
-    if (userRepository.existsByEmail(request.email())) {
+    String normalizedEmail = request.email().trim().toLowerCase();
+    if (userRepository.existsByEmail(normalizedEmail)) {
       throw new IllegalArgumentException("Email is already registered");
     }
 
     User user = new User();
     user.setName(request.name());
-    user.setEmail(request.email().toLowerCase());
+    user.setEmail(normalizedEmail);
     user.setPassword(passwordEncoder.encode(request.password()));
     user.setRole(userRepository.count() == 0 ? Role.ADMIN : Role.MEMBER);
     userRepository.save(user);
@@ -40,9 +41,10 @@ public class AuthService {
   }
 
   public AuthDtos.AuthResponse login(AuthDtos.LoginRequest request) {
+    String normalizedEmail = request.email().trim().toLowerCase();
     authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(request.email(), request.password()));
-    User user = userRepository.findByEmail(request.email())
+        new UsernamePasswordAuthenticationToken(normalizedEmail, request.password()));
+    User user = userRepository.findByEmail(normalizedEmail)
         .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
     return toResponse(user);
   }
