@@ -20,3 +20,6 @@ The first account created in a fresh deployment becomes the admin account. Later
 - MySQL
 - Railway
 
+## admin 
+admin email  - khushaladmin@gmail.com  
+& password   - admin123
