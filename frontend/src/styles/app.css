@@ -230,10 +230,27 @@ textarea {
 }
 
 .project-list,
-.task-list,
-.member-pills {
+.task-list {
   display: grid;
   gap: 12px;
+}
+
+.member-select-group {
+  display: grid;
+  gap: 10px;
+}
+
+.member-select {
+  min-height: 132px;
+}
+
+.member-selection-summary {
+  border-radius: 12px;
+  border: 1px solid rgba(16, 32, 39, 0.08);
+  background: rgba(242, 247, 244, 0.9);
+  color: #35524a;
+  min-height: 48px;
+  padding: 12px 14px;
 }
 
 .project-card,

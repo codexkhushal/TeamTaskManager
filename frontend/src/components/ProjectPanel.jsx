@@ -1,16 +1,21 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 const initialForm = { name: "", description: "", deadline: "", memberIds: [] };
 
 export default function ProjectPanel({ projects, users, isAdmin, onCreateProject, onDeleteProject }) {
   const [form, setForm] = useState(initialForm);
+  const selectedMemberNames = useMemo(
+    () => users
+      .filter((user) => form.memberIds.includes(user.id))
+      .map((user) => user.name),
+    [form.memberIds, users]
+  );
 
-  function toggleMember(memberId) {
+  function handleMemberSelection(event) {
+    const memberIds = Array.from(event.target.selectedOptions, (option) => Number(option.value));
     setForm((current) => ({
       ...current,
-      memberIds: current.memberIds.includes(memberId)
-        ? current.memberIds.filter((id) => id !== memberId)
-        : [...current.memberIds, memberId]
+      memberIds
     }));
   }
 
@@ -72,19 +77,24 @@ export default function ProjectPanel({ projects, users, isAdmin, onCreateProject
             Deadline
             <input type="date" value={form.deadline} onChange={(e) => setForm({ ...form, deadline: e.target.value })} />
           </label>
-          <div>
-            <span className="field-label">Team members</span>
-            <div className="member-pills">
-              {users.map((user) => (
-                <label className="member-pill" key={user.id}>
-                  <input
-                    checked={form.memberIds.includes(user.id)}
-                    onChange={() => toggleMember(user.id)}
-                    type="checkbox"
-                  />
-                  <span>{user.name}</span>
-                </label>
-              ))}
+          <div className="member-select-group">
+            <label>
+              Team members
+              <select
+                className="member-select"
+                multiple
+                onChange={handleMemberSelection}
+                value={form.memberIds.map(String)}
+              >
+                {users.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="member-selection-summary">
+              {selectedMemberNames.length ? selectedMemberNames.join(", ") : "No members selected yet."}
             </div>
             <p className="helper-text">Select every teammate who should be eligible for tasks in this project.</p>
           </div>
